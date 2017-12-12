@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import * as courseActions from '../../actions/CourseActions';
 
 class CoursesPage extends React.Component {
@@ -21,7 +22,11 @@ class CoursesPage extends React.Component {
     }
 
     onClickSave() {
-        this.props.dispatch(courseActions.createCourse(this.state.course));
+        // This call is related to mapDispatchToProps, this is not related to the action createCourse.
+        // The createCourse action is being dispatch through the mapDispatchToProps.
+        // NOTE: The confusion is related to the action method having the same name as 
+        // the method name defined on mapDispatchToProps.
+        this.props.actions.createCourse(this.state.course);
     }
 
     courseRow(course, index) {
@@ -48,8 +53,8 @@ class CoursesPage extends React.Component {
 }
 
 CoursesPage.propTypes = {
-    dispatch: PropTypes.func.isRequired,
-    courses: PropTypes.array.isRequired
+    courses: PropTypes.array.isRequired,
+    actions: PropTypes.object.isRequired
 };
 
 function mapStateToProps(state, ownProps) {
@@ -58,6 +63,11 @@ function mapStateToProps(state, ownProps) {
     };
 }
 
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(courseActions, dispatch)
+    };
+}
+
 // connect return a function that is use to call CoursesPage function that is why we have two ().
-// TODO: mapDispatchToProps
-export default connect(mapStateToProps)(CoursesPage);
+export default connect(mapStateToProps, mapDispatchToProps)(CoursesPage);
