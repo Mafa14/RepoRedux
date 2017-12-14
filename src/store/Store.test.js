@@ -1,6 +1,6 @@
 import expect from 'expect';
 import { createStore } from 'redux';
-import rootReducer from '../reducers';
+import rootReducer from '../reducers/Index';
 import initialState from '../reducers/InitialState';
 import * as courseActions from '../actions/CourseActions';
 
@@ -22,5 +22,5 @@ describe('Store', () => {
         };
 
         expect(actual).toEqual(expected);
-    })
+    });
 });
