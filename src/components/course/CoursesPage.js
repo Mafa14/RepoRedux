@@ -4,12 +4,15 @@ import { bindActionCreators } from 'redux';
 import * as courseActions from '../../actions/CourseActions';
 import CourseList from './CourseList';
 import { browserHistory } from 'react-router';
+import { getCourseById } from '../selectors/selectors';
+import toastr from 'toastr';
 
 class CoursesPage extends React.Component {
     constructor(props, context) {
         super(props, context);
-        
+
         this.redirectToAddCoursePage = this.redirectToAddCoursePage.bind(this);
+        this.deleteCourse = this.deleteCourse.bind(this);
     }
 
     courseRow(course, index) {
@@ -18,6 +21,21 @@ class CoursesPage extends React.Component {
 
     redirectToAddCoursePage() {
         browserHistory.push('/course');
+    }
+
+    deleteCourse(event) {
+        event.preventDefault();
+        const courseId = event.target.id;
+        if (courseId) {
+            let course = getCourseById(this.props.courses, courseId);
+            this.props.actions.deleteCourse(course)
+                .then(() => {
+                    toastr.success('Course deleted');
+                })
+                .catch(error => {
+                    toastr.error(error);
+                });
+        }
     }
 
     render() {
@@ -31,7 +49,7 @@ class CoursesPage extends React.Component {
                     value="Add Course"
                     className="btn btn-primary"
                     onClick={this.redirectToAddCoursePage} />
-                <CourseList courses={courses} />
+                {courses.length > 0 ? <CourseList courses={courses} onDelete={this.deleteCourse} /> : null}
             </div>
         );
     }
@@ -43,8 +61,19 @@ CoursesPage.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
+    function compareCourses(a, b) {
+        if (a.title.toUpperCase() < b.title.toUpperCase())
+            return -1;
+        if (a.title.toUpperCase() > b.title.toUpperCase())
+            return 1;
+        return 0;
+    }
+
+    state.courses.sort(compareCourses);
+    let orderedCourses = [...state.courses];
+
     return {
-        courses: state.courses
+        courses: orderedCourses
     };
 }
 
